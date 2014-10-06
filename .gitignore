@@ -1,0 +1,13 @@
+*.DS_Store
+*.project
+
+#netbeans specific core
+nbproject/*
+!nbproject/project.properties
+!nbproject/project.xml
+ 
+#java specific
+*.class
+
+#application specific files
+

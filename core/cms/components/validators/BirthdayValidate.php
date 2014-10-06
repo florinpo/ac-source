@@ -1,0 +1,173 @@
+<?php
+
+/**
+ * birthdayValidate - validates that the entered text is a valid date
+ */
+class BirthdayValidate extends CValidator {
+    /*     * #@+
+     * Validation error types.
+     * @see EAgeValidator::getMessage()
+     */
+
+    const ERROR_EMPTY = 1;
+    const ERROR_INVALID_FORMAT = 2;
+    const ERROR_UNDERAGE = 3;
+    const ERROR_OVERERAGE = 4;
+
+    /*     * #@-* */
+
+    /**
+     * Validation error messages on english
+     * @todo Replace this to correct english messages (need help!)
+     * @see EAgeValidator::getMessage()
+     * @var array
+     */
+    public static $messages = array(
+        self::ERROR_EMPTY => 'This field is required.',
+        self::ERROR_INVALID_FORMAT => 'Inserisca la sua nata di nascita in formato mm/gg/aaaa.',
+        self::ERROR_UNDERAGE => 'Your age must be not less than {minAge}.',
+        self::ERROR_OVERERAGE => 'Your age must be not more than {maxAge}.'
+    );
+
+    /*     * #@+
+     * Options hat can be configured
+     */
+
+    /**
+     * Minimal allowed age
+     * @var int
+     */
+    public $minAge = 18;
+
+    /**
+     * Maximal allowed age
+     * @var int
+     */
+    public $maxAge = 100;
+
+    /**
+     * @var boolean whether the attribute value can be null or empty. Defaults to true,
+     * meaning that if the attribute is empty, it is considered valid.
+     */
+    public $allowEmpty = false;
+
+    /**
+     * Message category for translation,
+     * @see Yii::t()
+     * 
+     * @var string
+     */
+    public $messageCategory = 'ageValidator';
+
+    /**
+     * Message source application component name for translation,
+     * Defaults to null, meaning using 'coreMessages' 
+     * @see Yii::t()
+     * @var string or null
+     */
+    public $messageSource = null;
+
+    /*     * #@- */
+
+    /**
+     * @param int $errorCode See class constants
+     * @param mixed $params Params that must be a part of message text.
+     * @return string message for validation error
+     */
+    protected function getMessage($errorCode, $params = null) {
+        return Yii::t($this->messageCategory, self::$messages[$errorCode], $params, $this->messageSource);
+    }
+
+    /**
+     * Validates the attribute of the object.
+     * If there is any error, the error message is added to the object.
+     * @param CModel the object being validated
+     * @param string name of the attribute being validated
+     */
+    protected function validateAttribute($object, $attribute) {
+        if ($this->isEmpty($object->$attribute)) {
+            if ($this->allowEmpty) {
+                return;
+            } else {
+                $this->addError($object, $attribute, $this->getMessage(self::ERROR_EMPTY));
+            }
+        }
+        //$birthdate=strtotime($object->$attribute);
+        
+        $birthdate = $this->checkDateFormat($object->{$attribute});
+        if (!$birthdate) {
+            $this->addError($object, $attribute, $this->getMessage(self::ERROR_INVALID_FORMAT));
+            return;
+        }
+        $age = $this->getAge($birthdate);
+
+        if ($age < $this->minAge) {
+            $this->addError($object, $attribute, $this->getMessage(self::ERROR_UNDERAGE, array('{minAge}' => $this->minAge)));
+            return;
+        }
+
+        if ($age > $this->maxAge) {
+            $this->addError($object, $attribute, $this->getMessage(self::ERROR_UNDERAGE, array('{maxAge}' => $this->maxAge)));
+            return;
+        }
+    }
+
+
+    /** 	
+     * Calculates age by birthdate.
+     * @param timestamp $birthdate
+     * @returns int age
+     */
+    public function getAge($birthdate) {
+
+        # Explode the date into meaningful variables
+        $birthYear = date('Y', $birthdate);
+        $birthMonth = date('m', $birthdate);
+        $birthDay = date('d', $birthdate);
+        # Find the differences
+        $yearDiff = date('Y') - $birthYear;
+        $monthDiff = date('m') - $birthMonth;
+        $dayDiff = date('d') - $birthDay;
+        # If the birthday has not occured this year
+        if ($dayDiff < 0 or $monthDiff < 0) {
+            $yearDiff--;
+        }
+        return $yearDiff;
+    }
+
+    /**
+     * Helper method, not used in Yii validation system.
+     * 
+     * Usage:
+     * <code>
+     * 	$validator = new EAgeValidator;
+     * 	$isAdult = $validator->validateValue('1987-05-31');
+     * 	#or
+     * 	$isAdult = Yii::createComponent(array('class'=>'ext.validators.age.EAgeValidator','minAge'=>16,'maxAge'=>120))->validateValue('2010-05-05');
+     * </code> 
+     *
+     * @param string $birthdate
+     * @return bool true if value is valid
+     */
+    public function validateValue($birthdate) {
+        $birthdate = strtotime($birthdate);
+        if (!$birthdate) {
+            return false;
+        }
+        $age = $this->getAge($birthdate);
+        return $age >= $this->minAge and $age <= $this->maxAge;
+    }
+
+    public function checkDateFormat($date) {
+        //match the format of the date
+        if (preg_match ("/^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/", $date, $parts)){
+            //check weather the date is valid of not
+            if (checkdate($parts[2], $parts[3], $parts[1]))
+                return false;
+            else
+                return true;
+        }
+       
+    }
+
+}

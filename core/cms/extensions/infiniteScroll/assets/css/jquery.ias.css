@@ -1,0 +1,30 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+.ias_loader, .ias_trigger {
+	text-align:center;
+	margin: 30px 0 40px;
+}
+.ias_loader img {
+    width: 16px;
+    margin: 0 auto;
+}
+.ias_trigger a:link,
+.ias_trigger a:visited {
+    padding: 6px 50px;
+    background-color: #d3f7bd;
+    border: solid 1px #b5dc9e;
+    border-radius:2px;
+    -moz-border-radius:2px;
+    -webkit-border-radius:2px;
+    font: inherit;
+    font-weight: bold;
+    color: #555;
+    text-decoration: none;
+}
+
+.ias_trigger a:hover,
+.ias_trigger a:active {
+    border-color: #98bf80;
+}

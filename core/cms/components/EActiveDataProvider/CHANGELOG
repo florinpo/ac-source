@@ -1,0 +1,18 @@
+EActiveDataProviderEx Change Log
+=================================
+
+Version 1.1.1
+-------------
+- Fix for criterias not being retrieved from cache (small fetchData overloading)
+
+
+Version 1.1.0
+-------------
+- Better native cache support (thanks to Stamm, see http://www.yiiframework.com/wiki/233/using-cache-in-cactivedataprovider/)
+- fetchData method is no more overloaded
+- calculateTotalItemCount optimisation
+
+
+Version 1.0.0
+-------------
+Initial release
